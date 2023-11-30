@@ -1,0 +1,10 @@
+.idea
+*/node_modules*
+.git/*
+.env
+build/
+config/local.php
+config/console-local.php
+runtime/
+vendor/
+var/

@@ -1,0 +1,48 @@
+version: '3.8'
+services:
+  nginx:
+    image: nginx:latest
+    container_name: nginx_server_cont
+    ports:
+      - "80:80"
+    volumes:
+      - ./docker/config/nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - ./:/var/www/html
+    links:
+      - php
+
+  php:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile.php
+    container_name: php_cont
+    depends_on:
+        - db
+        - cache
+    environment:
+      PHP_IDE_CONFIG: "serverName=localhost"
+    expose:
+      - 9003
+    volumes:
+      - ./:/var/www/html:delegated
+      - ./docker/config/php/docker-php-ext-xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+      - /var/www/html/vendor/
+
+  db:
+    image: mysql:8.2
+    container_name: mysql_cont
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: stock_pass
+      MYSQL_USER: stock_user
+      MYSQL_PASSWORD: stock_pass
+      MYSQL_DATABASE: stock_db
+    volumes:
+      - ./docker/mysql_data:/var/lib/mysql
+
+  cache:
+    image: redis:latest
+    container_name: redis_cont
+    ports:
+      - "6379:6379"
